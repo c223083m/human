@@ -191,8 +191,15 @@
         model.addEventListener('loop', handleLoop);
         model.addEventListener('finished', handleLoop);
 
+        let lastPosX = posX;
+        let lastPosY = posY;
+
         function animate() {
-            if (!isDragging) {
+            if (isDragging) {
+                // Calculate velocity from drag movement for throwing effect and animation
+                velX = posX - lastPosX;
+                velY = posY - lastPosY;
+            } else {
                 posX += velX;
                 posY += velY;
                 velX *= friction;
@@ -206,6 +213,9 @@
                 if (posY > limitY) { posY = limitY; velY *= -0.5; }
                 if (posY < -limitY) { posY = -limitY; velY *= -0.5; }
             }
+
+            lastPosX = posX;
+            lastPosY = posY;
 
             const speed = Math.sqrt(velX * velX + velY * velY);
             isMoving = speed > moveThreshold;
