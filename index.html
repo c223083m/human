@@ -115,7 +115,28 @@
             wrapper.style.cursor = 'grabbing';
         });
 
+        // Touch support for start
+        wrapper.addEventListener('touchstart', (e) => {
+            if (e.touches.length > 1) return; // Ignore multi-touch
+            e.preventDefault(); // Prevent scrolling on start
+            isDragging = true;
+            velX = 0; velY = 0;
+            dragStartX = e.touches[0].clientX;
+            dragStartY = e.touches[0].clientY;
+            initialDragPosX = posX;
+            initialDragPosY = posY;
+            wrapper.style.cursor = 'grabbing';
+        }, { passive: false });
+
         window.addEventListener('mouseup', () => {
+            if (isDragging) {
+                isDragging = false;
+                wrapper.style.cursor = 'pointer';
+            }
+        });
+
+        // Touch support for end
+        window.addEventListener('touchend', () => {
             if (isDragging) {
                 isDragging = false;
                 wrapper.style.cursor = 'pointer';
@@ -147,6 +168,19 @@
                 velY += forceY * strength * forceStrength;
             }
         });
+
+        // Touch support for move
+        document.addEventListener('touchmove', (e) => {
+            if (isDragging) {
+                // Prevent scrolling while dragging
+                e.preventDefault();
+                const deltaX = e.touches[0].clientX - dragStartX;
+                const deltaY = e.touches[0].clientY - dragStartY;
+                posX = initialDragPosX + deltaX;
+                posY = initialDragPosY + deltaY;
+                return;
+            }
+        }, { passive: false });
 
         const handleLoop = () => {
              if (!isMoving) {
